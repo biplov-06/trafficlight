@@ -5,158 +5,203 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>4-Way Intersection Traffic AI</title>
     <style>
+      /* --- Base Styles --- */
       body {
         margin: 0;
         background: #ccc;
-        font-family: Arial, sans-serif;
+        font-family: 'Inter', sans-serif; /* Using Inter font */
+        overflow: hidden; /* Prevent scrollbars when elements resize */
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh; /* Ensure body takes full viewport height */
       }
 
+      /* --- Controls Section --- */
       #controls {
-        margin: 20px;
+        margin: 2vmin; /* Responsive margin */
         display: flex;
-        gap: 10px;
+        gap: 2vmin; /* Responsive gap between buttons */
+        justify-content: center; /* Center buttons horizontally */
+        width: 100%;
+        padding: 2vmin;
+        box-sizing: border-box; /* Include padding in width calculation */
       }
 
       button {
-        padding: 10px 20px;
-        font-size: 16px;
+        padding: 1.5vmin 3vmin; /* Responsive padding */
+        font-size: 2.2vmin; /* Responsive font size */
         cursor: pointer;
+        background-color: #4CAF50; /* Green */
+        color: white;
+        border: none;
+        border-radius: 1vmin; /* Responsive border-radius */
+        box-shadow: 0 0.5vmin 1vmin rgba(0, 0, 0, 0.2); /* Responsive shadow */
+        transition: background-color 0.3s ease, transform 0.1s ease;
       }
 
+      button:hover {
+        background-color: #45a049;
+        transform: translateY(-0.2vmin);
+      }
+
+      button:active {
+        transform: translateY(0.1vmin);
+      }
+
+      /* Specific button colors */
+      button:first-of-type {
+        background-color: #f44336; /* Red for Red Light button */
+      }
+      button:first-of-type:hover {
+        background-color: #da190b;
+      }
+      button:last-of-type {
+        background-color: #4CAF50; /* Green for Green Light button */
+      }
+      button:last-of-type:hover {
+        background-color: #45a049;
+      }
+
+      /* --- Intersection Layout --- */
       #intersection {
         position: relative;
-        width: 100vw;
-        height: 400px;
+        width: 90vw; /* Take 90% of viewport width */
+        max-width: 800px; /* Max width to prevent it from getting too large on big screens */
+        height: 60vh; /* Take 60% of viewport height */
+        max-height: 600px; /* Max height */
         background: transparent;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden; /* Hide anything outside the intersection */
+        margin-top: 2vmin; /* Margin from controls */
+      }
+
+      .vertical-road,
+      .horizontal-road {
+        position: absolute;
+        background: #2c2c2c; /* Dark road color */
+        border-radius: 0.5vmin; /* Rounded road corners */
       }
 
       .vertical-road {
-        position: relative;
-        left: 45%;
-        width: 100px;
-        height: 600px;
-        background: #2c2c2c;
+        width: 12vmin; /* Responsive width */
+        height: 100%; /* Full height of intersection container */
       }
 
       .horizontal-road {
-        position: absolute;
-        top: 50%;
-        left: 0;
-        width: 100%;
-        height: 100px;
-        background: #2c2c2c;
+        width: 100%; /* Full width of intersection container */
+        height: 12vmin; /* Responsive height */
       }
 
+      /* --- Car Styling --- */
       #car {
         position: absolute;
-        top: 250px;
-        left: 0;
-        width: 60px;
-        height: 30px;
-        z-index: 3;
+        width: 6vmin; /* Responsive car width */
+        height: 3vmin; /* Responsive car height */
+        z-index: 3; /* Ensure car is above roads */
+        transition: left 0.01s linear; /* Smooth car movement */
       }
 
       .car-body {
         width: 100%;
-        height: 20px;
-        background: #e63946;
-        border-radius: 10px 10px 4px 4px;
+        height: 70%; /* Relative to car height */
+        background: #e63946; /* Red car color */
+        border-radius: 1vmin 1vmin 0.4vmin 0.4vmin; /* Responsive rounded corners */
         position: relative;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 0.2vmin 0.4vmin rgba(0, 0, 0, 0.3); /* Responsive shadow */
       }
 
       .windshield {
-        width: 20px;
-        height: 10px;
-        background: #a8dadc;
+        width: 35%; /* Relative to car-body width */
+        height: 50%; /* Relative to car-body height */
+        background: #a8dadc; /* Light blue windshield */
         position: absolute;
-        top: 2px;
-        left: 20px;
-        border-radius: 2px;
+        top: 15%;
+        left: 30%;
+        border-radius: 0.2vmin; /* Responsive border-radius */
       }
 
       .wheel {
-        width: 12px;
-        height: 12px;
-        background: #1d1d1d;
+        width: 2vmin; /* Responsive wheel size */
+        height: 2vmin;
+        background: #1d1d1d; /* Dark grey wheels */
         border-radius: 50%;
         position: absolute;
         bottom: 0;
+        box-shadow: inset 0 0 0.2vmin rgba(0, 0, 0, 0.5); /* Inner shadow for depth */
       }
 
       .front-wheel {
-        left: 4px;
+        left: 0.5vmin; /* Responsive positioning */
       }
 
       .rear-wheel {
-        right: 4px;
+        right: 0.5vmin; /* Responsive positioning */
       }
 
+      /* --- Stop Line & Traffic Light --- */
       #stop-line {
         position: absolute;
-        width: 5px;
-        height: 100px;
-        background: white;
-        top: 200px;
-        left: 550px;
+        width: 0.8vmin; /* Responsive width */
+        height: 12vmin; /* Responsive height (same as horizontal road height) */
+        background: white; /* White line */
         z-index: 3;
+        border-radius: 0.2vmin;
       }
 
       #traffic-light {
         position: absolute;
-        top: 100px;
-        left: 640px;
-        width: 40px;
-        height: 80px;
-        background: black;
+        width: 5vmin; /* Responsive width */
+        height: 10vmin; /* Responsive height */
+        background: black; /* Black light pole */
         display: flex;
         flex-direction: column;
         justify-content: space-around;
         align-items: center;
-        padding: 5px;
-        border-radius: 5px;
+        padding: 0.8vmin; /* Responsive padding */
+        border-radius: 0.8vmin; /* Responsive border-radius */
         z-index: 3;
+        box-shadow: 0 0.5vmin 1vmin rgba(0, 0, 0, 0.3);
       }
 
       .light {
-        width: 20px;
-        height: 20px;
+        width: 3vmin; /* Responsive light size */
+        height: 3vmin;
         border-radius: 50%;
-        background: grey;
+        background: grey; /* Default off light */
+        border: 0.2vmin solid #333;
+        box-shadow: inset 0 0 0.5vmin rgba(0, 0, 0, 0.5);
       }
 
-      .red {
+      .light.red {
         background: red;
+        box-shadow: 0 0 1.5vmin red, inset 0 0 0.5vmin rgba(255, 255, 255, 0.5);
       }
 
-      .green {
+      .light.green {
         background: green;
+        box-shadow: 0 0 1.5vmin green, inset 0 0 0.5vmin rgba(255, 255, 255, 0.5);
       }
-      .zebra {
-        background-color: white;
-        height: 5px;
-        left: 620px;
-        width: 40px;
-        z-index: 2;
+
+      /* --- Zebra Crossing Area --- */
+      #pedestrian-crossing {
         position: absolute;
+        width: 8vmin; /* Width of the crossing block */
+        height: 12vmin; /* Same height as horizontal road */
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around; /* Distribute stripes */
+        align-items: center; /* Center stripes horizontally */
+        z-index: 2; /* Below car, above road */
       }
-      .zebra2 {
-        top: 15px;
-      }
-      .zebra3 {
-        top: 30px;
-      }
-      .zebra4 {
-        top: 45px;
-      }
-      .zebra5 {
-        top: 60px;
-      }
-      .zebra6 {
-        top: 75px;
-      }
-      .zebra7 {
-        top: 90px;
+
+      .zebra-stripe {
+        background-color: white; /* White stripe */
+        height: 0.8vmin; /* Responsive stripe thickness */
+        width: 80%; /* Take 80% of crossing block width */
+        border-radius: 0.2vmin;
       }
     </style>
   </head>
@@ -168,14 +213,16 @@
 
     <div id="intersection">
       <div class="vertical-road"></div>
-      <div class="horizontal-road">
-        <div class="zebra zebra1"></div>
-        <div class="zebra zebra2"></div>
-        <div class="zebra zebra3"></div>
-        <div class="zebra zebra4"></div>
-        <div class="zebra zebra5"></div>
-        <div class="zebra zebra6"></div>
-        <div class="zebra zebra7"></div>
+      <div class="horizontal-road"></div>
+
+      <div id="pedestrian-crossing">
+        <div class="zebra-stripe"></div>
+        <div class="zebra-stripe"></div>
+        <div class="zebra-stripe"></div>
+        <div class="zebra-stripe"></div>
+        <div class="zebra-stripe"></div>
+        <div class="zebra-stripe"></div>
+        <div class="zebra-stripe"></div>
       </div>
 
       <div id="stop-line"></div>
@@ -197,14 +244,76 @@
       const car = document.getElementById("car");
       const redLight = document.getElementById("red-light");
       const greenLight = document.getElementById("green-light");
+      const stopLine = document.getElementById("stop-line");
+      const trafficLight = document.getElementById("traffic-light");
+      const intersection = document.getElementById("intersection");
+      const horizontalRoad = document.querySelector(".horizontal-road");
+      const pedestrianCrossing = document.getElementById("pedestrian-crossing");
 
       let carPosition = 0;
-      let stopLineX = 550;
-      let carSpeed = 2;
+      let stopLineX; // Will be calculated dynamically (left edge of the stop line)
+      let desiredCarStopX; // The exact X-coordinate for the front of the car to stop
+      let carSpeed = 2; // Initial speed, will be adjusted
       let lightIsRed = true;
       let hasCrossedStopLine = false;
       let isMoving = true;
 
+      /**
+       * Calculates and sets the dynamic positions of the stop line, traffic light,
+       * pedestrian crossing, and the car's initial position based on the current
+       * intersection dimensions. This ensures responsiveness on window resize.
+       */
+      function calculateDynamicPositions() {
+        const intersectionRect = intersection.getBoundingClientRect();
+        const horizontalRoadRect = horizontalRoad.getBoundingClientRect();
+        const verticalRoad = document.querySelector('.vertical-road');
+        const verticalRoadRect = verticalRoad.getBoundingClientRect();
+
+        // Calculate the center X and Y of the intersection container
+        const intersectionCenterX = intersectionRect.width / 2;
+        const intersectionCenterY = intersectionRect.height / 2;
+
+        // Determine the left edge of the vertical road (where the intersection visually begins for horizontal traffic)
+        const intersectionEntranceX = intersectionCenterX - (verticalRoadRect.width / 2);
+
+        // Responsive gap values
+        const responsiveGap1vmin = 1 * Math.min(window.innerWidth, window.innerHeight) / 100; // 1vmin
+        const responsiveGap2vmin = 2 * Math.min(window.innerWidth, window.innerHeight) / 100; // 2vmin
+
+        // 1. Position the Pedestrian Crossing (Zebra Stripes)
+        // It should be just before the intersection entrance
+        pedestrianCrossing.style.left = `${intersectionEntranceX - pedestrianCrossing.offsetWidth}px`;
+        pedestrianCrossing.style.top = `${intersectionCenterY - pedestrianCrossing.offsetHeight / 2}px`;
+
+        // 2. Position the Stop Line
+        // It should be just before the pedestrian crossing
+        // We want the car's front (carPosition + car.offsetWidth) to stop *at* the stop line's right edge.
+        // So, the stop line's right edge should be at (pedestrianCrossing.offsetLeft - a small buffer)
+        desiredCarStopX = pedestrianCrossing.offsetLeft - responsiveGap1vmin; // Stop slightly before the crossing
+        stopLineX = desiredCarStopX - stopLine.offsetWidth; // Left edge of the stop line
+        stopLine.style.left = `${stopLineX}px`;
+        stopLine.style.top = `${intersectionCenterY - stopLine.offsetHeight / 2}px`;
+
+
+        // 3. Position the Traffic Light
+        // It should be to the left of the stop line, aligned with the top of the horizontal road
+        trafficLight.style.left = `${stopLineX - trafficLight.offsetWidth - responsiveGap2vmin}px`;
+        trafficLight.style.top = `${intersectionCenterY - horizontalRoadRect.height / 2 - trafficLight.offsetHeight - responsiveGap2vmin}px`;
+
+        // 4. Initial Car Position
+        carPosition = -car.offsetWidth; // Start off-screen
+        // Vertically center the car on the lower "lane" of the horizontal road for left-to-right movement
+        car.style.top = `${intersectionCenterY + horizontalRoadRect.height / 4 - car.offsetHeight / 2}px`;
+        car.style.left = `${carPosition}px`;
+
+        // 5. Adjust Car Speed based on viewport width for consistency
+        carSpeed = Math.max(0.5, window.innerWidth / 700);
+      }
+
+      /**
+       * Sets the state of the traffic light (red or green).
+       * @param {string} color - The color to set the light to ('red' or 'green').
+       */
       function setLight(color) {
         if (color === "red") {
           lightIsRed = true;
@@ -215,6 +324,7 @@
           redLight.classList.remove("red");
           greenLight.classList.add("green");
 
+          // If the car was stopped at the red light, allow it to move
           if (!hasCrossedStopLine && !isMoving) {
             isMoving = true;
             requestAnimationFrame(moveCar);
@@ -222,34 +332,56 @@
         }
       }
 
+      /**
+       * Animates the car movement across the intersection.
+       * Handles stopping at red lights and resetting position after crossing.
+       */
       function moveCar() {
+        // Check if car needs to stop at the red light
+        // The car stops if it's red, hasn't crossed the line yet, and its front is at or before the desired stop point
+        // A small look-ahead (carSpeed * 0.5) helps ensure smooth stopping just before the line.
         if (
           !hasCrossedStopLine &&
           lightIsRed &&
-          carPosition + 60 >= stopLineX - 5
+          (carPosition + car.offsetWidth >= desiredCarStopX - (carSpeed * 0.5))
         ) {
-          isMoving = false;
-          return;
+          isMoving = false; // Stop the car
+          return; // Exit the function, stopping the animation frame requests
         }
 
-        if (carPosition + 60 > stopLineX) {
+        // Check if the car has successfully crossed the stop line
+        // A small buffer (5px) ensures it fully crosses the line before resetting 'hasCrossedStopLine'
+        if (carPosition + car.offsetWidth > desiredCarStopX + 5) {
           hasCrossedStopLine = true;
         }
 
+        // Update car position
         carPosition += carSpeed;
         car.style.left = carPosition + "px";
 
-        if (carPosition < window.innerWidth) {
-          requestAnimationFrame(moveCar);
-        } else {
-          carPosition = -60;
-          hasCrossedStopLine = false;
-          isMoving = true;
+        // Reset car position if it goes off-screen to the right
+        if (carPosition > window.innerWidth) {
+          carPosition = -car.offsetWidth; // Reset to start off-screen left
+          hasCrossedStopLine = false; // Reset for the next cycle
+          isMoving = true; // Ensure it starts moving again
+        }
+
+        // Continue animation if the car is supposed to be moving
+        if (isMoving) {
           requestAnimationFrame(moveCar);
         }
       }
 
-      moveCar();
+      // --- Event Listeners for Responsiveness and Initial Setup ---
+      // Recalculate positions when the window loads
+      window.addEventListener("load", calculateDynamicPositions);
+      // Recalculate positions when the window is resized
+      window.addEventListener("resize", calculateDynamicPositions);
+
+      // Start the car movement animation when the page loads
+      window.addEventListener("load", () => {
+        moveCar();
+      });
     </script>
   </body>
 </html>
