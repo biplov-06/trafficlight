@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>4-Way Intersection Traffic AI</title>
+    <style>
+      body {
+        margin: 0;
+        background: #ccc;
+        font-family: Arial, sans-serif;
+      }
+
+      #controls {
+        margin: 20px;
+        display: flex;
+        gap: 10px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+
+      #intersection {
+        position: relative;
+        width: 100vw;
+        height: 400px;
+        background: transparent;
+      }
+
+      .vertical-road {
+        position: relative;
+        left: 45%;
+        width: 100px;
+        height: 600px;
+        background: #2c2c2c;
+      }
+
+      .horizontal-road {
+        position: absolute;
+        top: 50%;
+        left: 0;
+        width: 100%;
+        height: 100px;
+        background: #2c2c2c;
+      }
+
+      #car {
+        position: absolute;
+        top: 250px;
+        left: 0;
+        width: 60px;
+        height: 30px;
+        z-index: 3;
+      }
+
+      .car-body {
+        width: 100%;
+        height: 20px;
+        background: #e63946;
+        border-radius: 10px 10px 4px 4px;
+        position: relative;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .windshield {
+        width: 20px;
+        height: 10px;
+        background: #a8dadc;
+        position: absolute;
+        top: 2px;
+        left: 20px;
+        border-radius: 2px;
+      }
+
+      .wheel {
+        width: 12px;
+        height: 12px;
+        background: #1d1d1d;
+        border-radius: 50%;
+        position: absolute;
+        bottom: 0;
+      }
+
+      .front-wheel {
+        left: 4px;
+      }
+
+      .rear-wheel {
+        right: 4px;
+      }
+
+      #stop-line {
+        position: absolute;
+        width: 5px;
+        height: 100px;
+        background: white;
+        top: 200px;
+        left: 550px;
+        z-index: 3;
+      }
+
+      #traffic-light {
+        position: absolute;
+        top: 100px;
+        left: 640px;
+        width: 40px;
+        height: 80px;
+        background: black;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        align-items: center;
+        padding: 5px;
+        border-radius: 5px;
+        z-index: 3;
+      }
+
+      .light {
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        background: grey;
+      }
+
+      .red {
+        background: red;
+      }
+
+      .green {
+        background: green;
+      }
+      .zebra {
+        background-color: white;
+        height: 5px;
+        left: 620px;
+        width: 40px;
+        z-index: 2;
+        position: absolute;
+      }
+      .zebra2 {
+        top: 15px;
+      }
+      .zebra3 {
+        top: 30px;
+      }
+      .zebra4 {
+        top: 45px;
+      }
+      .zebra5 {
+        top: 60px;
+      }
+      .zebra6 {
+        top: 75px;
+      }
+      .zebra7 {
+        top: 90px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="controls">
+      <button onclick="setLight('red')">Red Light</button>
+      <button onclick="setLight('green')">Green Light</button>
+    </div>
+
+    <div id="intersection">
+      <div class="vertical-road"></div>
+      <div class="horizontal-road">
+        <div class="zebra zebra1"></div>
+        <div class="zebra zebra2"></div>
+        <div class="zebra zebra3"></div>
+        <div class="zebra zebra4"></div>
+        <div class="zebra zebra5"></div>
+        <div class="zebra zebra6"></div>
+        <div class="zebra zebra7"></div>
+      </div>
+
+      <div id="stop-line"></div>
+      <div id="traffic-light">
+        <div id="red-light" class="light red"></div>
+        <div id="green-light" class="light"></div>
+      </div>
+
+      <div id="car">
+        <div class="car-body">
+          <div class="windshield"></div>
+        </div>
+        <div class="wheel front-wheel"></div>
+        <div class="wheel rear-wheel"></div>
+      </div>
+    </div>
+
+    <script>
+      const car = document.getElementById("car");
+      const redLight = document.getElementById("red-light");
+      const greenLight = document.getElementById("green-light");
+
+      let carPosition = 0;
+      let stopLineX = 550;
+      let carSpeed = 2;
+      let lightIsRed = true;
+      let hasCrossedStopLine = false;
+      let isMoving = true;
+
+      function setLight(color) {
+        if (color === "red") {
+          lightIsRed = true;
+          redLight.classList.add("red");
+          greenLight.classList.remove("green");
+        } else {
+          lightIsRed = false;
+          redLight.classList.remove("red");
+          greenLight.classList.add("green");
+
+          if (!hasCrossedStopLine && !isMoving) {
+            isMoving = true;
+            requestAnimationFrame(moveCar);
+          }
+        }
+      }
+
+      function moveCar() {
+        if (
+          !hasCrossedStopLine &&
+          lightIsRed &&
+          carPosition + 60 >= stopLineX - 5
+        ) {
+          isMoving = false;
+          return;
+        }
+
+        if (carPosition + 60 > stopLineX) {
+          hasCrossedStopLine = true;
+        }
+
+        carPosition += carSpeed;
+        car.style.left = carPosition + "px";
+
+        if (carPosition < window.innerWidth) {
+          requestAnimationFrame(moveCar);
+        } else {
+          carPosition = -60;
+          hasCrossedStopLine = false;
+          isMoving = true;
+          requestAnimationFrame(moveCar);
+        }
+      }
+
+      moveCar();
+    </script>
+  </body>
+</html>
